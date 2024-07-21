@@ -322,18 +322,10 @@ uint32_t Adafruit_PN532::getFirmwareVersion(void) {
 // default timeout of one second
 bool Adafruit_PN532::sendCommandCheckAck(uint8_t *cmd, uint8_t cmdlen,
                                          uint16_t timeout) {
-
-  // I2C works without using IRQ pin by polling for RDY byte
-  // seems to work best with some delays between transactions
-  uint8_t SLOWDOWN = 0;
-  if (i2c_dev)
-    SLOWDOWN = 1;
-
   // write the command
   writecommand(cmd, cmdlen);
 
-  // I2C TUNING
-  delay(SLOWDOWN);
+  delay(1);
 
   // Wait for chip to say its ready!
   if (!waitready(timeout)) {
@@ -354,8 +346,12 @@ bool Adafruit_PN532::sendCommandCheckAck(uint8_t *cmd, uint8_t cmdlen,
     return false;
   }
 
-  // I2C TUNING
-  delay(SLOWDOWN);
+  // I2C works without using IRQ pin by polling for RDY byte
+  // seems to work best with some delays between transactions
+  if (i2c_dev) {
+    // I2C TUNING
+    delay(1);
+  }
 
   // Wait for chip to say its ready!
   if (!waitready(timeout)) {
